@@ -57,8 +57,11 @@ class NotesController extends AppController {
 		//do stuff to array and return the result
 		return $array;
 	}
-	public function edit($id = null) {		
-		$this->Note->id = $id;		
+	public function edit($id = null, $type = null) {	
+		if($id == null || $type == null) return;
+		$this->Note->id = $id;
+		$this->set('id', $id);
+		$this->set('type', $type);
 		if (!$this->Note->exists()) {
 			throw new NotFoundException(__('Invalid user'));
 		}
@@ -81,10 +84,10 @@ class NotesController extends AppController {
 		}
 		if ($this->Note->saveField('deleted', true)) {
 			$this->Session->setFlash("削除しました");
-			return $this->redirect(array('action' => 'index'));
+			return $this->redirect($this->referer());
 		}
 		$this->Session->setFlash('削除出来ませんでした。');
-		return $this->redirect(array('action' => 'index'));
+		return $this->redirect($this->referer());
 	}	
 
 }

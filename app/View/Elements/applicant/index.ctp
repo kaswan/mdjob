@@ -22,7 +22,6 @@
          <?php     
             echo $this->Form->input('progress_status_id', array('label' => false, 'class' => 'form-control','options' => array('' => 'ステータス') + $statuses)); 
          ?>                                                 
-                                
       </div>
                 
       <div class="col-xs-1">
@@ -59,7 +58,10 @@
       </tr>
       <?php foreach($applicants as $id => $val){ ?>
         <tr class="<?php echo $val['Applicant']['status'];?>">
-          <td class="<?php echo $val['Applicant']['status'];?>"><?php echo $val['Applicant']['id'];?></td>
+          <td class="<?php echo $val['Applicant']['status'];?>">
+            <?php echo $this->html->link('<i class="icon-large  icon-trash"></i>', array('controller' => 'applicants', 'action' => 'modified_date_update', $val['Applicant']['id']), array('escape' => false, 'class' => 'btn btn-danger btn-sm', 'confirm' =>'新しい方に上げてもよろしいですか？'))?>
+            <?php echo $val['Applicant']['id'];?>
+          </td>
           <td class="<?php echo $val['Applicant']['status'];?>"><?php echo $val['Applicant']['name'];?></td>
           <td class="<?php echo $val['Applicant']['status'];?>"><?php echo $val['Applicant']['gender'];?></td>
           <td class="<?php echo $val['Applicant']['status'];?>"><?php if($val['Applicant']['age'] <= '100') echo $val['Applicant']['age'].'歳';?></td>

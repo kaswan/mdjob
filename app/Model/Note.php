@@ -7,12 +7,18 @@ class Note extends AppModel {
         'Applicant' => array(
             'foreignKey' => 'target_id',
             'conditions' => array('Note.type' => 'Applicant'),
-        	'counterCache' => 'note_count',        	
+        	'counterCache' => 'note_count',  
+            'counterScope' => array(
+        	  'Note.type' => 'Applicant', 'Note.deleted' => false
+        	)
         ),
         'Institution' => array(
             'foreignKey' => 'target_id',
             'conditions' => array('Note.type' => 'Institution'),
         	'counterCache' => 'note_count',
+        	'counterScope' => array(
+        	  'Note.type' => 'Institution', 'Note.deleted' => false
+        	)
         ),
 		'SelectInstitution' => array(
 			'className' => 'Institution',

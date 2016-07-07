@@ -31,7 +31,7 @@
  * In production mode, flash messages redirect after a time interval.
  * In development mode, you need to click the flash message to continue.
  */
-	Configure::write('debug', 0);
+	Configure::write('debug', 2);
 
 /**
  * Configure the Error handler used to handle errors for your application. By default
@@ -349,6 +349,24 @@
  *	));
  */
 
+   // Applicants
+   Cache::config('applicant', array(
+   		'engine' => 'File',
+   		'duration' => '+1 days',
+   		'prefix' => 'applicant_result_',
+   		'path' => CACHE . 'list' . DS,
+   		'serialize' => true,
+   ));
+   
+   // qualification
+   Cache::config('qualification', array(
+   		'engine' => 'File',
+   		'duration' => '+999 days',
+   		'prefix' => 'qualification_cake_',
+   		'path' => CACHE . 'list' . DS,
+   		'serialize' => true,
+   ));
+   
    // institution
    Cache::config('institution', array(
    'engine' => 'File',

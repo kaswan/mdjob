@@ -3,7 +3,6 @@ App::uses('AppModel', 'Model');
 
 class Post extends AppModel {
 	var $hasMany = array('EntryPost');
-// 	var $hasOne = array('Applicant');
 	
 	public function data_read($data, $prefectures){
 		$arr= array();
@@ -12,6 +11,7 @@ class Post extends AppModel {
 		foreach ($data['EntryPost'] as $key => $val){
 			$arr['post_id'] = $val['post_id'];
 			$arr['created_at'] = $val['post_date'];
+			$arr['sort_modified_date'] = $val['post_date'];
 			switch ($val['meta_key']) {
 				case 'uname':
 					$arr['name'] = $val['meta_value'];

@@ -3,39 +3,44 @@
 <div class="box-body">
    <?php echo $this->Form->create('Applicant',array('action'=>'index', 'method' => 'GET')); ?>
    <div class="row">
-      <div class="col-xs-2">
-         <?php echo $this->Form->input('freeword', array('label' => false, 'placeholder' => '名前で検索する', 'class' => 'form-control')); ?>
+      <div class="col-xs-4">
+         <?php echo $this->Form->input('freeword', array('label' => false, 'placeholder' => 'フリーワードで検索する', 'class' => 'form-control')); ?>
       </div>
+      
+      <div class="col-xs-2">
+         <?php echo $this->Form->input('qualification', array('label' => false, 'class' => 'form-control', 'options' => array('' => '資格を選んでください') + $qualifications )); ?>
+      </div>
+      
       <div class="col-xs-2">
          <?php echo $this->Form->input('prefecture', array('label' => false, 'class' => 'form-control', 'options' => array('' => '都道府県') + $prefectures )); ?>
       </div>
       <div class="col-xs-2">
       		<?php echo $this->Form->input('phone', array('label' => false, 'placeholder' => '電話番号', 'class' => 'form-control')); ?>
-         <?php #echo $this->Form->input('work_type_id', array('label' => false, 'class' => 'form-control', 'options' => array('' => '選択してください') + $work_types )); ?>
       </div>
       <?php for($i=15;$i <= 60; $i=$i+5) $age_range[$i] = $i . "歳" . "～". ($i + 5) ."歳"; ?> 
       <div class="col-xs-2">
          <?php echo $this->Form->input('age', array('label' => false, 'class' => 'form-control', 'options' => array('' => '年齢検索') + $age_range )) ; ?>
       </div>
-      
+  </div>
+  <div class="row">    
       <div class="col-xs-2">
          <?php     
             echo $this->Form->input('progress_status_id', array('label' => false, 'class' => 'form-control','options' => array('' => 'ステータス') + $statuses)); 
          ?>                                                 
-                                
       </div>
                 
-      <div class="col-xs-1">
-         <?php echo $this->Form->button('検索', array('class' => 'btn btn-success', 'label' => 'Search')); ?>
+      <div class="col-xs-8">
+         <?php echo $this->Form->button('<i class="icon-large icon-search"> </i>検索', array('escape' => false, 'class' => 'btn btn-success', 'style' => 'width:170px;', 'label' => 'Search')); ?>
       </div>
    
-      <div class="col-xs-1">
-         <?php echo $this->html->link('新規登録', array('controller' => 'applicants', 'action' => 'add'), array('class' => 'btn btn-danger '));?>
+      <div class="col-xs-2">
+         <?php echo $this->html->link('<i class="icon-large icon-user"> </i>新規登録', array('controller' => 'applicants', 'action' => 'add'), array('escape' => false, 'class' => 'btn btn-danger ', 'style' => 'width:170px;text-decoration:none;'));?>
       </div>
    </div>   
    
    <?php echo $this->Form->end(); ?>
 </div>
+<?php $url_params = ""; foreach($this->params['named'] as $index => $val){$url_params .= $index.':'.$val . '/';}?>
 <br> 
 <div class="users">
 <?php if(!empty($applicants)) { ?>
@@ -51,6 +56,7 @@
         <th><?php echo $this->Paginator->sort('progress_status_id', 'ステータス'); ?></th>
         <th><?php echo $this->Paginator->sort('employment_pattern', '雇用形態'); ?></th>
         <th><?php echo $this->Paginator->sort('user_id', '担当者'); ?></th>
+        <th><?php echo $this->Paginator->sort('user_id', 'メルマガ'); ?></th>
         <th><?php echo $this->Paginator->sort('created_at', '作成日'); ?></th>
         <th></th>
         <th></th>
@@ -59,7 +65,12 @@
       </tr>
       <?php foreach($applicants as $id => $val){ ?>
         <tr class="<?php echo $val['Applicant']['status'];?>">
-          <td class="<?php echo $val['Applicant']['status'];?>"><?php echo $val['Applicant']['id'];?></td>
+          <td class="<?php echo $val['Applicant']['status'];?>">
+             <?php echo $this->html->link('<i class="icon-small icon-arrow-up"></i>', 
+                                     array('action' => 'modified_date_update', $val['Applicant']['id']), 
+                                     array('escape' => false, 'class' => 'btn btn-default btn-xs', 'confirm' =>'新しい方に上げてもよろしいですか？'))?>
+             <?php echo $val['Applicant']['id'];?>
+          </td>
           <td class="<?php echo $val['Applicant']['status'];?>"><?php echo $val['Applicant']['name'];?></td>
           <td class="<?php echo $val['Applicant']['status'];?>"><?php echo $val['Applicant']['gender'];?></td>
           <td class="<?php echo $val['Applicant']['status'];?>"><?php if($val['Applicant']['age'] <= '100') echo $val['Applicant']['age'].'歳';?></td>
@@ -76,7 +87,7 @@
               				'submitText' => '保存',
               				'toolTip' => 'クリックして編集する',
              			 	'containerType' => 'label',
-             			 	'containerClass' => 'bg-warning',
+             			 	'containerClass' => 'bg-warning ',
               			)
         			);
           ?>
@@ -97,6 +108,26 @@
               				'toolTip' => 'クリックして編集する',
              			 	'containerType' => 'label',
              			 	'containerClass' => 'bg-danger',
+              			)
+        			);
+				
+          ?>
+          </td>
+          
+          <td >
+          <?php
+          		
+          			echo $this->inPlaceEditing->input('Applicant', 'mail_magazine_subscription', $val['Applicant']['id'],
+        				array('value' => $val['Applicant']['mail_magazine_subscription'] ? '希望する' : '希望しない',
+              				'actionName' => Router::url(array('controller' => 'Applicants', 'action' => 'in_place_editing')),
+             		 		'type' => 'select',
+             		 		'selectOptions' => json_encode(array('1' => '希望する', '0' => '希望しない')),
+             		 		'selected' => $val['Applicant']['mail_magazine_subscription'],
+              				'cancelText' => 'キャンセル',
+              				'submitText' => '保存',
+              				'toolTip' => 'クリックして編集する',
+             			 	'containerType' => 'label',
+             			 	'containerClass' => 'bg-info',
               			)
         			);
 				

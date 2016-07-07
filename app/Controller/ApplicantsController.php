@@ -4,16 +4,9 @@ App::uses('AppController', 'Controller');
 class ApplicantsController extends AppController {
 
 	public $uses = array('Applicant','Institution','WorkType','Prefecture', 'ProgressStatus', 'User', 
-			'WorkHistory', 'QualificationHistory', 'UploadDocument', 'Post');
+			'WorkHistory', 'QualificationHistory', 'UploadDocument', 'Post', 'Qualification');
 	public $components = array('Paginator','Mpdf', 'RequestHandler');
-	
-	public $paginate = array(
-			'limit' => 25,
-			'order' => array(
-				'Applicant.status' => 'ASC',
-				'Applicant.created_at' => 'DESC'
-			)
-	);
+	public $paginate = array();
 	
 	public function beforeFilter() {
 	    parent::beforeFilter();	
@@ -47,15 +40,19 @@ class ApplicantsController extends AppController {
 	    }
 	    $this->set('users', $user);
 	    
+	    $qualification = Cache::read('lists','qualification');
+	    if (!$qualification) {
+	    	$qualification = $this->Qualification->find('list',array('fields' => array('name', 'name'), 'order' => 'is_other,id'));
+	    	Cache::write('lists', $qualification, 'qualification');
+	    }
+	    $this->set('qualifications', $qualification);
+	    
 	}
 	
-	
-	
-	
 	public function index() {
-				
 		
 		$conditions = array();
+		$option = array();
 		if(($this->request->is('post') || $this->request->is('put')) && isset($this->data['Applicant'])){
 			$filter_url['controller'] = $this->request->params['controller'];
 			$filter_url['action'] = $this->request->params['action'];
@@ -83,8 +80,7 @@ class ApplicantsController extends AppController {
 					// like "between dates", "greater than", etc
 		            if($param_name == "freeword"){
 		            	$conditions['OR'] = array(
-		            			array('Applicant.name LIKE' => '%' . $value . '%'),
-		            			array('Applicant.furigana LIKE' => '%' . $value . '%')
+		            			array('Applicant.freeword LIKE' => '%' . $value . '%')
 		            	);
 		            } else if($param_name == "phone"){
 		            	$conditions['AND'] = array(array('Applicant.tel LIKE' => '%' . $value . '%'));
@@ -92,6 +88,9 @@ class ApplicantsController extends AppController {
 		            	$conditions['AND'] = array(array('Applicant.age BETWEEN ? AND ?' => array($value , $value + 5)));
 				    } elseif ($param_name == 'prefecture'){
 		            	$conditions['Applicant.prefecture_id'] = $value;
+				    } elseif ($param_name == 'qualification'){
+				    	$option = array('INNER JOIN qualification_histories AS QualificationHistory ON Applicant.id=QualificationHistory.applicant_id');
+		            	$conditions['QualificationHistory.name'] = $value;
 				    } else {
 		            	$conditions['Applicant.'.$param_name] = $value;
 		            }
@@ -104,33 +103,39 @@ class ApplicantsController extends AppController {
 		
 		$conditions['Applicant.deleted'] = false;
 		
-// 		$this->set('work_types', $this->WorkType->find('list',array('fields' => array('id', 'name'))));
-				
 		$this->Paginator->settings = $this->paginate;
-		$this->Applicant->recursive = 0;
+ 		$this->Applicant->recursive = 0;
 		$this->Paginator->settings = array(
 				'conditions' => $conditions, 
 				'limit' => 25,
+				'joins' => $option,
 				'order' => array(
+					'Applicant.sort_modified_date' => 'DESC',
 				   'Applicant.status' => 'ASC',
 				   'Applicant.created_at' => 'DESC'
 			));
 		$this->set('applicants', $this->Paginator->paginate());
-				
+		
+		$applicants = $this->Applicant->find('list',array('fields' => array('id'), 'conditions' => $conditions, 'joins' => $option, 'order' => array(
+				'Applicant.sort_modified_date' => 'DESC',
+				'Applicant.status' => 'ASC',
+				'Applicant.created_at' => 'DESC'
+			)));
+		Cache::write('lists', $applicants, 'applicant');		
+		
 	}
 
 	public function view($id = null) {
 		/*$this->layout = 'default';*/
-		/*Configure::write('debug', 0);*/
 		$this->Applicant->id = $id;
 		$this->Applicant->saveField('status', 'read');
 		
 		if (!$this->Applicant->exists()) {
 			throw new NotFoundException(__('Invalid user'));
 		}
-// 		$this->set('work_types', $this->WorkType->find('list',array('fields' => array('id', 'name'))));
 		$this->set('applicant', $this->Applicant->read(null, $id));
-		
+		$this->set('prev', $this->getPrevApplicant($id, Cache::read('lists','applicant')));
+		$this->set('next', $this->getNextApplicant($id, Cache::read('lists','applicant')));
 	}
 
 	public function print_view($id = null) {
@@ -153,13 +158,11 @@ class ApplicantsController extends AppController {
 		if (!$this->Applicant->exists()) {
 			throw new NotFoundException(__('Invalid user'));
 		}
-// 		$this->set('work_types', $this->WorkType->find('list',array('fields' => array('id', 'name'))));
 		$this->set('applicant', $this->Applicant->read(null, $id));
 	}
 	
 	
 	public function entry_sheet($id = null) {
-		
 		
 		if ($this->request->is('post') || $this->request->is('put')) {
 			$this->Applicant->id = $id;
@@ -196,8 +199,6 @@ class ApplicantsController extends AppController {
 	
 	public function add() {
 		
-// 		$this->set('work_types', $this->WorkType->find('list',array('fields' => array('id', 'name'))));		
-		
 		if ($this->request->is('post')) {
 			foreach ($this->request->data['UploadDocument'] as $key => $val) {
 				if (empty($val['document']['name'])) {
@@ -206,6 +207,7 @@ class ApplicantsController extends AppController {
 			}
 			$this->request->data['Applicant']['status'] = 'read';
 			$this->request->data['Applicant']['created_at'] = date("Y-m-d H:i:s");
+			$this->request->data['Applicant']['sort_modified_date'] = date("Y-m-d H:i:s");
 			if ($this->Applicant->saveAssociated($this->request->data)) {
 				$this->Session->setFlash(__('登録しました。'));
 				return $this->redirect(array('action' => 'view', $this->Applicant->id));
@@ -216,9 +218,6 @@ class ApplicantsController extends AppController {
 
 	
 	public function edit($id = null) {
-		
-// 		$this->set('work_types', $this->WorkType->find('list',array('fields' => array('id', 'name'))));
-		
 		
 		$this->Applicant->id = $id;
 		$this->Applicant->saveField('status', 'read');
@@ -271,6 +270,21 @@ class ApplicantsController extends AppController {
 		}
 	}
 
+	public function modified_date_update($id = null){
+		$this->Applicant->id = $id;
+		if (!$this->Applicant->exists()) {
+			throw new NotFoundException(__('存在しません'));
+		}
+		if(AuthComponent::user('role') == 'admin'){
+			if ($this->Applicant->saveField('sort_modified_date', date("Y-m-d H:i:s"))) {
+				$this->Session->setFlash("新しい方に上げました");
+				return $this->redirect($this->referer());
+			}
+		}
+		$this->Session->setFlash('新しい方に上げませんでした。');
+		return $this->redirect(array('action' => 'index'));
+	}
+	
 	public function delete($id = null) {
 		$this->Applicant->id = $id;
 		if (!$this->Applicant->exists()) {
@@ -301,6 +315,9 @@ class ApplicantsController extends AppController {
 				}elseif ($field == 'user_id'){
 					$user = $this->User->read(null, $value);
 					$this->set('updated_value', $user['User']['name']);
+				}elseif ($field == 'mail_magazine_subscription'){
+					$applicant = $this->Applicant->read(null, $id);
+					$this->set('updated_value', $applicant['Applicant']['mail_magazine_subscription'] ? '希望する' : '希望しない');
 				}
 				
 				$this->beforeRender();
@@ -327,5 +344,18 @@ class ApplicantsController extends AppController {
 		return true;
 	}
 
+	function getPrevApplicant($key, $hash = array()) {
+		$keys = array_keys($hash);
+		$found_index = array_search($key, $keys);
+		if ($found_index === false || $found_index === 0) return false;
+		return $keys[$found_index - 1];
+	}
+	
+	function getNextApplicant($key, $hash = array()) {
+		$keys = array_keys($hash);
+		$found_index = array_search($key, $keys);
+		if ($found_index === false || end($hash) === $key) return false;
+		return $keys[$found_index + 1];
+	}
 }
 ?>
