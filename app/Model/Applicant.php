@@ -21,6 +21,7 @@ class Applicant extends AppModel {
 	public $virtualFields = array(
 			'age' => "DATE_FORMAT(NOW(), '%Y') - DATE_FORMAT(Applicant.date_of_birth, '%Y') - (DATE_FORMAT(NOW(), '00-%m-%d') < DATE_FORMAT(Applicant.date_of_birth, '00-%m-%d'))",
 			'freeword' => 'CONCAT(Applicant.name, Applicant.furigana, Applicant.address, Applicant.employment_pattern, Applicant.employment_pattern_remarks, Applicant.desired_joining_time, Applicant.places_of_employment, Applicant.annual_income, Applicant.holiday, Applicant.working_hours, Applicant.commuting_time, Applicant.desired_working_days, Applicant.desired_department, Applicant.commuting, Applicant.contract_document, Applicant.remarks, Applicant.entry_sheet_remarks, Applicant.id)',
+			'email_combine' => 'CONCAT(Applicant.email,";",Applicant.email_mobile)'
 			);
 	
     public $validate = array(
