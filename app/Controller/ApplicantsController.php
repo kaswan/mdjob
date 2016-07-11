@@ -224,6 +224,8 @@ class ApplicantsController extends AppController {
 		if (!$this->Applicant->exists()) {
 			throw new NotFoundException(__('Invalid user'));
 		}
+		
+		//pr($this->request->data['QualificationHistory']);
 		if ($this->request->is('post') || $this->request->is('put')) {
 			
 			if(!empty($this->request->data['WorkHistory'])){

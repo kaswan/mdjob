@@ -461,6 +461,11 @@ $(document).ready(function() {
             uploadTable.find('a.add').click();
         }
 });
+
+
+
+  
+
 </script>
 
 <script type="text/javascript">

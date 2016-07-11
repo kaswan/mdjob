@@ -5,7 +5,7 @@ class Applicant extends AppModel {
 	
 	
 	public $belongsTo = array('Prefecture', 'ProgressStatus', 'WorkType', 'Institution' => array('counterCache' => true), 'User' => array('counterCache' => true));
-	public $hasMany = array('WorkHistory', 'QualificationHistory',
+	public $hasMany = array('WorkHistory', 'QualificationHistory' => array('order' => 'QualificationHistory.year DESC, QualificationHistory.month DESC'),
 			                'Note' => array(
 					           'className' => 'Note',
 					           'foreignKey' => 'target_id',
