@@ -467,6 +467,21 @@ $(document).ready(function() {
   
 
 </script>
+<script type="text/javascript">
+  on_qualification();
+  $(document).on('click', 'a.add', function(event){   
+    on_qualification();
+  });
+  function on_qualification(){
+     $('.qualification').change(function(e){
+       if($(this).val() == 'その他'){
+         $(e.target).closest("td").find('[class*="other-qualification"]').first().show();
+       }else{
+         $(e.target).closest("td").find('[class*="other-qualification"]').first().hide();
+       }
+     });
+  }
+</script>
 
 <script type="text/javascript">
     var config = {
