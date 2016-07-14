@@ -41,12 +41,11 @@ $cakeDescription = __d('cake_dev', 'MEDICAL JOBS（求職者管理）');
     		'//cdnjs.cloudflare.com/ajax/libs/underscore.js/1.7.0/underscore-min.js'
 		));
 		echo $this->Html->css('cake.generic');
-        echo $this->Html->css('entryform');
 		echo $this->fetch('meta');
 		echo $this->fetch('css');
 		echo $this->fetch('script');
 		echo $this->Html->script('jquery.datetimepicker');
-        echo $this->Html->css('jquery.datetimepicker');
+    echo $this->Html->css('jquery.datetimepicker');
         
 	?>
 </head>
