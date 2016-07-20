@@ -3,36 +3,53 @@
 <div class="box-body">
    <?php echo $this->Form->create('Applicant',array('action'=>'index', 'method' => 'GET')); ?>
    <div class="row">
-      <div class="col-xs-4">
+      <div class="col-xs-6">
          <?php echo $this->Form->input('freeword', array('label' => false, 'placeholder' => 'フリーワードで検索する', 'class' => 'form-control')); ?>
       </div>
-      
+   </div>
+   <div class="row">
+      <div class="col-xs-2">
+         <?php echo $this->Form->input('gender', array('label' => false, 'class' => 'form-control', 'options' => array('' => '', '男' => '男', '女' => '女' ))); ?>
+      </div>   
       <div class="col-xs-2">
          <?php echo $this->Form->input('qualification', array('label' => false, 'class' => 'form-control', 'options' => array('' => '資格を選んでください') + $qualifications )); ?>
       </div>
       
       <div class="col-xs-2">
+         <?php echo $this->Form->input('employment_pattern', array('label' => false, 'class' => 'form-control', 
+               'options' => 
+                 array('' => '雇用形態を選んでください', 
+                    "常勤（夜勤有）" => "常勤（夜勤有）", 
+										"常勤（夜勤無）" => "常勤（夜勤無）", 
+										"非常勤" => "非常勤",
+										"夜勤常勤" => "夜勤常勤",
+										"夜勤アルバイト" => "夜勤アルバイト",
+										"派遣" => "派遣",
+										"応援" => "応援",
+										"その他" => "その他") )); ?>
+      </div>
+      
+      <div class="col-xs-2">
          <?php echo $this->Form->input('prefecture', array('label' => false, 'class' => 'form-control', 'options' => array('' => '都道府県') + $prefectures )); ?>
       </div>
-      <div class="col-xs-2">
-      		<?php echo $this->Form->input('phone', array('label' => false, 'placeholder' => '電話番号', 'class' => 'form-control')); ?>
-      </div>
+            
       <?php for($i=15;$i <= 60; $i=$i+5) $age_range[$i] = $i . "歳" . "～". ($i + 5) ."歳"; ?> 
       <div class="col-xs-2">
-         <?php echo $this->Form->input('age', array('label' => false, 'class' => 'form-control', 'options' => array('' => '年齢検索') + $age_range )) ; ?>
+         <?php echo $this->Form->input('age', array('label' => false, 'class' => 'form-control', 'options' => array('' => '年齢') + $age_range )) ; ?>
       </div>
-  </div>
-  <div class="row">    
+  
       <div class="col-xs-2">
          <?php     
             echo $this->Form->input('progress_status_id', array('label' => false, 'class' => 'form-control','options' => array('' => 'ステータス') + $statuses)); 
          ?>                                                 
       </div>
                 
+      
+   </div>
+   <div class="row">
       <div class="col-xs-8">
          <?php echo $this->Form->button('<i class="icon-large icon-search"> </i>検索', array('escape' => false, 'class' => 'btn btn-success', 'style' => 'width:170px;', 'label' => 'Search')); ?>
       </div>
-   
       <div class="col-xs-2">
          <?php echo $this->html->link('<i class="icon-large icon-user"> </i>新規登録', array('controller' => 'applicants', 'action' => 'add'), array('escape' => false, 'class' => 'btn btn-danger ', 'style' => 'width:170px;text-decoration:none;'));?>
       </div>

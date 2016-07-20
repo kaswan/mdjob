@@ -82,8 +82,10 @@ class ApplicantsController extends AppController {
 		            	$conditions['OR'] = array(
 		            			array('Applicant.freeword LIKE' => '%' . $value . '%')
 		            	);
-		            } else if($param_name == "phone"){
-		            	$conditions['AND'] = array(array('Applicant.tel LIKE' => '%' . $value . '%'));
+		            } else if($param_name == "gender"){
+		            	$conditions['AND'] = array(array('Applicant.gender LIKE' => '%' . $value . '%'));
+// 		            }else if($param_name == "phone"){
+// 		            	$conditions['AND'] = array(array('Applicant.tel LIKE' => '%' . $value . '%'));
 		            } elseif ($param_name == 'age'){
 		            	$conditions['AND'] = array(array('Applicant.age BETWEEN ? AND ?' => array($value , $value + 5)));
 				    } elseif ($param_name == 'prefecture'){
