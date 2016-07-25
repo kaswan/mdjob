@@ -96,7 +96,7 @@ class ApplicantsController extends AppController {
 				    } else {
 		            	$conditions['Applicant.'.$param_name] = $value;
 		            }
-					$this->request->data['Applicant'][$param_name] = $value;
+					$this->request->data[$param_name] = $value;
 				}
 			}
 		}
