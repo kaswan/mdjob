@@ -1,6 +1,6 @@
 <?php echo $this->Html->css('font-awesome');?>
 <?php echo $this->Html->css('build');?>
-<form action="sender" method="POST" id="mailForm">
+<form action="/mail_magazine/sender" method="POST" id="mailForm">
 
   <div class="wrapper" >
 
