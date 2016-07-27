@@ -122,7 +122,7 @@ class MailMagazineController extends AppController {
 			  $Email = new CakeEmail();
 			  $Email->template("mail_magazine",null)
 			  ->emailFormat('text')
-			  ->viewVars(array('body'=>$this->request->data['mailBody'], 'name' => 'カスワン'))
+			  ->viewVars(array('body'=>$this->request->data['mailBody'], 'name' => AuthComponent::user('name')))
 			  ->from(array($this->request->data['mailFrom'] => $this->request->data['mailSender']))
 			  ->to(AuthComponent::user('email'))
 			  ->subject($this->request->data['mailTitle'])
