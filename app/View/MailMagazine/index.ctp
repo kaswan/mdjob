@@ -1,14 +1,13 @@
 <?php echo $this->Html->css('font-awesome');?>
 <?php echo $this->Html->css('build');?>
-<form action="/mail_magazine/sender" method="POST" id="mailForm">
+<form action="/mail_magazine/confirm" method="POST" id="mailForm">
 
   <div class="wrapper" >
 
   <div class="alert alert-warning">
-    ※最初に内容確認をする場合は【確認用アドレス】にアドレスを入力し、送信ボタンを押してください。<br/>
-    ・「送信する。」をチェックすると該当の本番メールリストに送信します。それ以外は確認用のテストメールのみ送信します。<br/>
+    ※最初に内容確認をする場合は【確認用アドレス】にアドレスを入力し、送信ボタンを押してください。(確認用のテストメールのみ)<br/>    
     ・「メルマガ希望会員」を選択すると、都道府県・資格・雇用形態・年齢・性別の条件に応じてメルマガ希望会員にのみ送信します。<br/>
-    
+    ・「全会員」を選択すると、都道府県・資格・雇用形態・年齢・性別の条件に応じてメルマガ希望しない会員含む、全会員に送信します。<br/>
   </div>
 
 
@@ -17,11 +16,11 @@
     <th>送信種別</th>
     <td class="align_l">
       <div class="radio radio-success radio-inline">
-         <input type="radio" id="mailMagazineRadio1" value="1" name="mail_magazine_subscription" checked>
+         <input type="radio" id="mailMagazineRadio1" value="1" name="mail_magazine_subscription" checked />
          <label for="mailMagazineRadio1"> メルマガ希望会員 </label>
       </div>
       <div class="radio radio-danger radio-inline">
-         <input type="radio" id="mailMagazineRadio2" value="all" name="mail_magazine_subscription">
+         <input type="radio" id="mailMagazineRadio2" value="all" name="mail_magazine_subscription" <?php if(isset($this->request->data['mail_magazine_subscription']) && $this->request->data['mail_magazine_subscription'] == 'all') echo 'checked'; ?>>
          <label for="mailMagazineRadio2"> 全会員 </label>
       </div>
     </td>
@@ -34,7 +33,7 @@
         <kbd><?php echo $area_name ?></kbd>
         <?php foreach($prefectures[$area_id] as $id => $prefecture){ ?>
               <div class="checkbox checkbox-success checkbox-inline">
-                 <input type="checkbox" class="styled" id="pre_<?php echo $id ?>" value="<?php echo $id ?>" name = "prefectures[]">
+                 <input type="checkbox" class="styled" id="pre_<?php echo $id ?>" value="<?php echo $id ?>" name = "prefectures[]" <?php if(isset($this->request->data['prefectures']) && in_array($id, array_values($this->request->data['prefectures']))) echo 'checked'; ?> />
                  <label for="pre_<?php echo $id ?>"> <?php echo $prefecture ?> </label>
               </div>
         <?php }?>
@@ -73,7 +72,7 @@
     <?php for($i=15;$i <= 60; $i=$i+5) $age_range[$i] = $i . "歳" . "～". ($i + 5) ."歳"; ?>
       <?php foreach($age_range as $i => $range) { ?>
     　　　　<div class="checkbox checkbox-success checkbox-inline">
-        <input type="checkbox" class="styled" id="age_<?php echo $i ?>" value="<?php echo $i ?>" name = "age_range[]">
+        <input type="checkbox" class="styled" id="age_<?php echo $i ?>" value="<?php echo $i ?>" name = "age_range[]" <?php if(isset($this->request->data['age_range']) && in_array($i, array_values($this->request->data['age_range']))) echo 'checked'; ?>>
         <label for="age_<?php echo $i ?>"> <?php echo $range ?> </label>
       </div>
       <?php } ?>
@@ -84,15 +83,15 @@
     <th>性別</th>
     <td class="align_l">
        <div class="radio radio-danger radio-inline">
-         <input type="radio" id="gender1" value="all" name="gender" checked>
+         <input type="radio" id="gender1" value="all" name="gender" checked />
          <label for="gender1"> 未指定 </label>
       </div>
       <div class="radio radio-info radio-inline">
-         <input type="radio" id="gender2" value="男" name="gender">
+         <input type="radio" id="gender2" value="男" name="gender" <?php if(isset($this->request->data['gender']) && $this->request->data['gender'] == '男') echo 'checked'; ?> />
          <label for="gender2"> 男 </label>
       </div>
       <div class="radio radio-info radio-inline">
-         <input type="radio" id="gender3" value="女" name="gender">
+         <input type="radio" id="gender3" value="女" name="gender" <?php if(isset($this->request->data['gender']) && $this->request->data['gender'] == '女') echo 'checked'; ?> />
          <label for="gender3"> 女 </label>
       </div>    
     </td>
@@ -108,7 +107,8 @@
 
   <center>
   <div class="submit">
-    <input type="submit" name="send" value="メルマガを送信する" class="btn" />
+    <input type="submit" name="confirm" value="確認する" class="btn" />
+    
   </div>
   </center>
 
@@ -137,9 +137,7 @@
       }
       
       if(title!= '' && body != ''){
-        if(confirm('送信種別に間違いはありませんか?')){
-          return true;
-        }
+        return true;        
       }
       
       e.preventDefault();

@@ -14,6 +14,13 @@ class MailMagazineController extends AppController {
 			Cache::write('lists', $qualification, 'qualification');
 		}
 		$this->set('qualifications', $qualification);
+		
+		$prefecure_lists = Cache::read('lists','prefecture');
+		if (!$prefecure_lists) {
+			$prefecure_lists = $this->Prefecture->find('list',array('fields' => array('id', 'prefecture_name')));
+			Cache::write('lists', $prefecure_lists, 'prefecture');
+		}
+		$this->set('prefecure_lists', $prefecure_lists);
 	}
 	
 	public function index(){
@@ -21,11 +28,22 @@ class MailMagazineController extends AppController {
 		$this->set('areas', $area_lists);
 		$prefecure_lists = $this->Prefecture->find('list',array('fields' => array('id', 'prefecture_name', 'area_id')));
 		$this->set('prefectures', $prefecure_lists);
+		
+		if(($this->request->is('post') || $this->request->is('put'))){
+			foreach($this->params['data'] as $param_name => $value){
+				$this->request->data[$param_name] = $value;
+			}
+		}
 	}
 	
+	public function confirm(){
+		if(isset($this->params['data']['confirm'])){
+			$this->set('data', $this->params['data']);
+		}
+	}
 	
 	public function sender(){
-		$this->search();
+		$this->search();		
 	}
 	
 	function search(){
@@ -38,7 +56,6 @@ class MailMagazineController extends AppController {
 			)	
 		);
 		if(($this->request->is('post') || $this->request->is('put'))){
-			pr($this->params);			
 			// Inspect all the named parameters to apply the filters
 			foreach($this->params['data'] as $param_name => $value){
 				// Don't apply the default named parameters used for pagination
@@ -67,10 +84,12 @@ class MailMagazineController extends AppController {
 				    }
 				    
 				    
-					$this->request->data['Applicant'][$param_name] = $value;
+					$this->request->data[$param_name] = $value;
 				}
 			}
 		}
+		
+		
 		
 		if($this->params['data']['mailToTest'] != ''){
 			$Email = new CakeEmail();
@@ -81,29 +100,38 @@ class MailMagazineController extends AppController {
 			->to($this->request->data['mailToTest'])
 			->subject($this->request->data['mailTitle'])
 			->send();
+			
+			$this->Session->setFlash('テスト用メール送信しました。メールを確認ください');
+			$this->Session->setFlash('テスト用メールを送信しました。「'. $this->request->data["mailToTest"] .'」を確認ください',  'default', array('class' => 'notice'));
 		}else{
 		  $conditions['Applicant.deleted'] = false;		
 		  $this->Applicant->recursive = -1;
 		  $applicants = $this->Applicant->find('list',array('fields' => array('name','email_combine','id'), 'conditions' => $conditions, 'joins' => $option));
-		  pr($applicants);
-		  $this->request->data['MailMagazine'] = array(
-				 'user_id' => AuthComponent::user('id'),
-			     'title' => $this->params['data']['mailTitle'],
-		         'body' => $this->params['data']['mailBody'],
-				 'options' => json_encode($this->params['data']),
-				 'responses' => json_encode($applicants));
-		
-		  $this->MailMagazine->save($this->request->data);
 		  
-		  
-		  $Email = new CakeEmail();
-		  $Email->template("mail_magazine",null)
-		  ->emailFormat('text')
-		  ->viewVars(array('body'=>$this->request->data['mailBody'], 'name' => 'カスワン'))
-		  ->from(array($this->request->data['mailFrom'] => $this->request->data['mailSender']))
-		  ->to("madankaswan@gmail.com")
-		  ->subject($this->request->data['mailTitle'])
-		  ->send();
+		  if(!empty($applicants)){
+			  $this->request->data['MailMagazine'] = array(
+					 'user_id' => AuthComponent::user('id'),
+				     'title' => $this->params['data']['mailTitle'],
+			         'body' => $this->params['data']['mailBody'],
+					 'options' => json_encode($this->params['data']),
+					 'responses' => json_encode($applicants));
+			
+			  $this->MailMagazine->save($this->request->data);
+			  
+			  
+			  $Email = new CakeEmail();
+			  $Email->template("mail_magazine",null)
+			  ->emailFormat('text')
+			  ->viewVars(array('body'=>$this->request->data['mailBody'], 'name' => 'カスワン'))
+			  ->from(array($this->request->data['mailFrom'] => $this->request->data['mailSender']))
+			  ->to(AuthComponent::user('email'))
+			  ->subject($this->request->data['mailTitle'])
+			  ->send();
+			  $this->Session->setFlash('(' . count($applicants) . '件) ' . 'メールマガジンの送信を完了しました。',  'default', array('class' => 'success'));
+			  $this->set('applicants', $applicants);
+		  }else{
+		  	$this->Session->setFlash('選んだ条件でメール送信先を見つかりませんでした。条件を変えて、再度やり直してください。',  'default', array('class' => 'notice'));
+		  }
 		}
 				
 	}
