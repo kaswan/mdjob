@@ -5,6 +5,14 @@
    <div class="row">
       <div class="col-xs-6">
          <?php echo $this->Form->input('freeword', array('label' => false, 'placeholder' => 'フリーワードで検索する', 'class' => 'form-control')); ?>
+      </div>     
+      <div class="col-xs-2"></div>
+      <div class="col-xs-2">
+         <?php echo $this->html->link('<i class="icon-large icon-user"> </i>新規登録', array('controller' => 'applicants', 'action' => 'add'), array('escape' => false, 'class' => 'btn btn-danger ', 'style' => 'width:170px;text-decoration:none;'));?>
+      </div>
+      
+      <div class="col-xs-2">
+         <?php echo $this->html->link('メールマガジン配信へ', array('controller' => 'mail_magazine', 'action' => 'index'), array('escape' => false, 'class' => 'btn btn-info ', 'style' => 'width:170px;text-decoration:none;'));?>
       </div>
    </div>
    <div class="row">
@@ -47,16 +55,16 @@
       
    </div>
    <div class="row">
-      <div class="col-xs-8">
+      <div class="col-xs-5"></div>
+      <div class="col-xs-7">
          <?php echo $this->Form->button('<i class="icon-large icon-search"> </i>検索', array('escape' => false, 'class' => 'btn btn-success', 'style' => 'width:170px;', 'label' => 'Search')); ?>
       </div>
-      <div class="col-xs-2">
-         <?php echo $this->html->link('<i class="icon-large icon-user"> </i>新規登録', array('controller' => 'applicants', 'action' => 'add'), array('escape' => false, 'class' => 'btn btn-danger ', 'style' => 'width:170px;text-decoration:none;'));?>
-      </div>
+      
    </div>   
    
    <?php echo $this->Form->end(); ?>
 </div>
+
 <?php $url_params = ""; foreach($this->params['named'] as $index => $val){$url_params .= $index.':'.$val . '/';}?>
 <br> 
 <div class="users">
@@ -68,6 +76,7 @@
         <th><?php echo $this->Paginator->sort('id', 'No.'); ?></th>
         <th><?php echo $this->Paginator->sort('name', 'お名前'); ?></th>
         <th>性別</th>
+        <th>資格</th>
         <th><?php echo $this->Paginator->sort('age', '年齢'); ?></th>
         <th><?php echo $this->Paginator->sort('prefecture_id', '都道府県'); ?></th>
         <th><?php echo $this->Paginator->sort('progress_status_id', 'ステータス'); ?></th>
@@ -90,6 +99,7 @@
           </td>
           <td class="<?php echo $val['Applicant']['status'];?>"><?php echo $val['Applicant']['name'];?></td>
           <td class="<?php echo $val['Applicant']['status'];?>"><?php echo $val['Applicant']['gender'];?></td>
+          <td class="<?php echo $val['Applicant']['status'];?>"><?php if(isset($qualification_history[$val['Applicant']['id']]))echo $qualification_history[$val['Applicant']['id']]?></td>
           <td class="<?php echo $val['Applicant']['status'];?>"><?php if($val['Applicant']['age'] <= '100') echo $val['Applicant']['age'].'歳';?></td>
           <td class="<?php echo $val['Applicant']['status'];?>"><?php if($val['Applicant']['prefecture_id'] > 0 )echo $prefectures[$val['Applicant']['prefecture_id']];?></td>
           <td class="<?php echo $val['Applicant']['status'];?>">
@@ -168,7 +178,7 @@
   			  		        'ajaxUrl'=>'/notes/add/' . $val['Applicant']['id'] . '/Applicant'
   					      )
 				       );
-                       $this->Fancybox->setPreviewContent($val['Applicant']['note_count'] > 0 ? "<i class='glyphicon glyphicon-edit'></i><small><span class='badge' style='font-size:0.6em;'>{$val['Applicant']['note_count']}</span></small>" : '<i class="glyphicon glyphicon-edit"></i>'); // the link which will trigger fancybox on click
+                       $this->Fancybox->setPreviewContent('<i class="glyphicon glyphicon-edit"></i>'); // the link which will trigger fancybox on click
                        echo $this->Fancybox->output();		
 
                     ?>

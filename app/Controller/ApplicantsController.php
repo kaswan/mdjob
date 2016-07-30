@@ -96,7 +96,7 @@ class ApplicantsController extends AppController {
 				    } else {
 		            	$conditions['Applicant.'.$param_name] = $value;
 		            }
-					$this->request->data[$param_name] = $value;
+					$this->request->data['Applicant'][$param_name] = $value;
 				}
 			}
 		}
@@ -114,8 +114,9 @@ class ApplicantsController extends AppController {
 				'order' => array(
 					'Applicant.sort_modified_date' => 'DESC',
 				   'Applicant.status' => 'ASC',
-				   'Applicant.created_at' => 'DESC'
-			));
+				   'Applicant.created_at' => 'DESC'),
+				'group' => array('Applicant.id')
+		);
 		$this->set('applicants', $this->Paginator->paginate());
 		
 		$applicants = $this->Applicant->find('list',array('fields' => array('id'), 'conditions' => $conditions, 'joins' => $option, 'order' => array(
@@ -123,7 +124,9 @@ class ApplicantsController extends AppController {
 				'Applicant.status' => 'ASC',
 				'Applicant.created_at' => 'DESC'
 			)));
-		Cache::write('lists', $applicants, 'applicant');		
+		Cache::write('lists', $applicants, 'applicant');
+
+		$this->set('qualification_history', $this->QualificationHistory->find('list', array('fields' => array('applicant_id', 'name'), 'conditions' => array('applicant_id' => $applicants))));
 		
 	}
 
