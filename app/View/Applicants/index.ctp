@@ -3,9 +3,12 @@
 <div class="box-body">
    <?php echo $this->Form->create('Applicant',array('action'=>'index', 'method' => 'GET')); ?>
    <div class="row">
-      <div class="col-xs-6">
+      <div class="col-xs-4">
          <?php echo $this->Form->input('freeword', array('label' => false, 'placeholder' => 'フリーワードで検索する', 'class' => 'form-control')); ?>
       </div>     
+      <div class="col-xs-2">
+         <?php echo $this->Form->input('user_id', array('label' => false, 'class' => 'form-control', 'options' => array('' => '担当者を選んでください') + $users )); ?>
+      </div> 
       <div class="col-xs-2"></div>
       <div class="col-xs-2">
          <?php echo $this->html->link('<i class="icon-large icon-user"> </i>新規登録', array('controller' => 'applicants', 'action' => 'add'), array('escape' => false, 'class' => 'btn btn-danger ', 'style' => 'width:170px;text-decoration:none;'));?>
@@ -51,7 +54,7 @@
             echo $this->Form->input('progress_status_id', array('label' => false, 'class' => 'form-control','options' => array('' => 'ステータス') + $statuses)); 
          ?>                                                 
       </div>
-                
+           
       
    </div>
    <div class="row">

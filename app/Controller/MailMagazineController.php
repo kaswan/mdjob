@@ -39,12 +39,14 @@ class MailMagazineController extends AppController {
 	public function confirm(){
 		if(isset($this->params['data']['confirm'])){
 			$this->set('data', $this->params['data']);
-			$this->search();
+			$applicants = $this->search();	
+		    $this->set('applicants', $applicants);
 		}
 	}
 	
 	public function sender(){
-		$this->search();	
+		$applicants = $this->search();	
+		$this->set('applicants', $applicants);
 		if($this->params['data']['mailToTest'] != ''){			
 			$Email = new CakeEmail();
 			$Email->template("mail_magazine",null)
@@ -68,17 +70,18 @@ class MailMagazineController extends AppController {
 						'responses' => json_encode($applicants));
 					
 				$this->MailMagazine->save($this->request->data);
-					
+					$data = array();
 				foreach($applicants as $no => $val){
-					$this->request->data['Note'] = array(
+					$data['Note'][] = array(
 							'target_id' => $no,
 							'type' => 'Applicant',
 							'date_time' => date("Y-m-d H:i:s"),
 							'remarks' => "メールマガジン「{$this->params['data']['mailTitle']}」を送信しました。",
-							'user_id' => AuthComponent::user('id')
+							'user_id' => AuthComponent::user('id'),
+							'created_at' => date("Y-m-d H:i:s"),
+							'updated_at' => date("Y-m-d H:i:s")
 							
 					);
-					$this->Note->save($this->request->data);
 // 					foreach($val as $name => $email){
 // 						$Email = new CakeEmail();
 // 						$Email->template("mail_magazine",null)
@@ -90,6 +93,7 @@ class MailMagazineController extends AppController {
 // 						->send();
 // 					}
 				}
+				if(!empty($data['Note']))$this->Note->saveMany($data['Note'], array('validate' => false,'deep' => true));
 // 				$Email = new CakeEmail();
 // 				$Email->template("mail_magazine",null)
 // 				->emailFormat('text')
@@ -152,8 +156,8 @@ class MailMagazineController extends AppController {
 		$conditions['Applicant.deleted'] = false;
 		$this->Applicant->recursive = -1;
 		$applicants = $this->Applicant->find('list',array('fields' => array('name','email_combine','id'), 'conditions' => $conditions, 'joins' => $option));
-		$this->set('applicants', $applicants);
 		
+		return $applicants;
 		
 				
 	}
