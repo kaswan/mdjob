@@ -50,13 +50,8 @@
   </table>
 
   <form action="/mail_magazine/sender" method="POST" id="mailForm">
-<<<<<<< HEAD
-    <center>
-    <div class="submit">
-=======
     
     <div class="submit" style = 'width:100%;font-size:20px;font-weight:bold;position:fixed; bottom:20px;'>
->>>>>>> a5e240edefb41aca9fc6731be165f8f475c77ba2
       <?php foreach($data as $key => $value) { ?>
         <?php if(in_array($key, array('send', 'confirm'))) continue; ?>
         <?php if($key == 'prefectures' || $key == 'age_range') { ?>
@@ -67,26 +62,17 @@
           <input type='hidden' name='<?php echo $key ?>' value='<?php echo $value ?>'>
         <?php } ?>  
       <?php }?>
-<<<<<<< HEAD
-      <input type="submit" name="back" id="back"  value="&lt;&lt;入力画面に戻る" class="btn" data-action="/mail_magazine/"/>
-      <input type="submit" name="send" id="send"  value="メルマガを送信する &gt;&gt;" class="btn " data-action="/mail_magazine/sender"/>
-    </div>
-    </center>
-=======
       <center>
       <input type="submit" name="back" id="back"  value="&lt;&lt;入力画面に戻る" class="btn" data-action="/mail_magazine/"/>
       <input type="submit" name="send" id="send"  value="メルマガを送信する &gt;&gt;" class="btn " data-action="/mail_magazine/sender"/>
       </center>
     </div>
     
->>>>>>> a5e240edefb41aca9fc6731be165f8f475c77ba2
   </form>
   </div>
 
 <?php } ?>
 
-<<<<<<< HEAD
-=======
 <h2>送信先リスト <kbd>(<?php echo count($applicants) . '件'?>)</kbd></h2>
 <table>
   <tr>
@@ -106,7 +92,6 @@
   <?php } ?>
 </table>  
   
->>>>>>> a5e240edefb41aca9fc6731be165f8f475c77ba2
 <script>
   $('.btn').click(function() {
     if($(this).attr('id') == 'send'){
@@ -119,8 +104,4 @@
     $(this).parents('form').attr('action', $(this).data('action'));
     $(this).parents('form').submit();
   });
-<<<<<<< HEAD
 </script>
-=======
-</script>
->>>>>>> a5e240edefb41aca9fc6731be165f8f475c77ba2
