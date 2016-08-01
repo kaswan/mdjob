@@ -97,7 +97,7 @@ class MailMagazineController extends AppController {
 			->emailFormat('text')
 			->viewVars(array('body'=>$this->request->data['mailBody'], 'name' => AuthComponent::user('name')))
 			->from(array($this->request->data['mailFrom'] => $this->request->data['mailSender']))
-			->to($this->request->data['mailToTest'])
+			->to("{$this->request->data['mailToTest']}")
 			->subject($this->request->data['mailTitle'])
 			->send();
 			
